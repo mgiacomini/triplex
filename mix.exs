@@ -4,9 +4,8 @@ defmodule Triplex.Mixfile do
   def project do
     [
       app: :triplex,
-      version: "1.2.0-dev",
-      elixir: "~> 1.4",
-
+      version: "2.0.0",
+      elixir: "~> 1.7",
       description: "Build multitenant applications on top of Ecto.",
       package: package(),
       elixirc_paths: elixirc_paths(Mix.env),
@@ -48,17 +47,13 @@ defmodule Triplex.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:ecto, "~> 2.1"},
-      {:postgrex, ">= 0.11.0"},
-      {:mariaex, "~> 0.8.2", optional: true},
-      
-      {:plug, "~> 1.3", optional: true},
-
+      {:ecto_sql, "~> 3.0.0-rc.1"},
+      {:postgrex, ">= 0.0.0"},
+      {:mariaex, "~> 0.9.0-rc", optional: true},
+      {:plug, "~> 1.7", optional: true},
       {:ex_doc, ">= 0.0.0", only: :dev},
-
-      {:inch_ex, only: :docs},
-
-      {:excoveralls, "~> 0.6", only: :test},
+      {:inch_ex, ">= 0.0.0", only: :docs},
+      {:excoveralls, ">= 0.0.0", only: :test},
     ]
   end
 
@@ -80,7 +75,7 @@ defmodule Triplex.Mixfile do
     [
       name: :triplex,
       files: ["lib", "mix.exs", "README*", "LICENSE*"],
-      maintainers: ["Kelvin Stinghen"],
+      maintainers: ["Kelvin Stinghen", "Mauricio Giacomini Girardello"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/ateliware/triplex"}
     ]
