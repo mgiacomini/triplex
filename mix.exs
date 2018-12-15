@@ -4,9 +4,8 @@ defmodule Triplex.Mixfile do
   def project do
     [
       app: :triplex,
-      version: "1.2.0-dev",
+      version: "2.0.0-dev",
       elixir: "~> 1.4",
-
       description: "Build multitenant applications on top of Ecto.",
       package: package(),
       elixirc_paths: elixirc_paths(Mix.env),
@@ -48,17 +47,13 @@ defmodule Triplex.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:ecto, "~> 2.1"},
-      {:postgrex, ">= 0.11.0"},
-      {:mariaex, "~> 0.8.2", optional: true},
-      
+      {:ecto_sql, "~> 3.0"},
+      {:postgrex, ">= 0.14.0"},
+      {:mariaex, "~> 0.9.0", optional: true},
       {:plug, "~> 1.3", optional: true},
-
       {:ex_doc, ">= 0.0.0", only: :dev},
-
       {:inch_ex, only: :docs},
-
-      {:excoveralls, "~> 0.6", only: :test},
+      {:excoveralls, "~> 0.10", only: :test},
     ]
   end
 
@@ -69,10 +64,12 @@ defmodule Triplex.Mixfile do
   #
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
-    ["db.migrate": ["ecto.migrate", "triplex.migrate"],
-    "test.reset": ["ecto.drop", "ecto.create", "db.migrate"],
-    "test.cover": &run_default_coverage/1,
-    "test.cover.html": &run_html_coverage/1]
+    [
+      "db.migrate": ["ecto.migrate", "triplex.migrate"],
+      "test.reset": ["ecto.drop", "ecto.create", "db.migrate"],
+      "test.cover": &run_default_coverage/1,
+      "test.cover.html": &run_html_coverage/1
+    ]
   end
 
   defp package do
@@ -80,19 +77,21 @@ defmodule Triplex.Mixfile do
     [
       name: :triplex,
       files: ["lib", "mix.exs", "README*", "LICENSE*"],
-      maintainers: ["Kelvin Stinghen"],
+      maintainers: ["Kelvin Stinghen", "Mauricio Giacomini Girardello"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/ateliware/triplex"}
     ]
   end
 
   defp preferred_cli_env do
-    ["coveralls": :test,
-    "coveralls.travis": :test,
-    "coveralls.detail": :test,
-    "coveralls.post": :test,
-    "coveralls.html": :test,
-    "test.reset": :test]
+    [
+      coveralls: :test,
+      "coveralls.travis": :test,
+      "coveralls.detail": :test,
+      "coveralls.post": :test,
+      "coveralls.html": :test,
+      "test.reset": :test
+    ]
   end
 
   defp run_default_coverage(args), do: run_coverage("coveralls", args)
