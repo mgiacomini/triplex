@@ -28,7 +28,6 @@ defmodule TriplexTest do
       on_exit drop_tenants
       :ok
     else
-      Ecto.Adapters.SQL.Sandbox.mode(@repo, :manual)
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(@repo)
     end
   end
@@ -45,7 +44,7 @@ defmodule TriplexTest do
     if @repo.__adapter__ == Ecto.Adapters.MySQL do
       assert msg =~ "Can't create database 'lala'; database exists"
     else
-      assert msg == "ERROR 42P06 (duplicate_schema): schema \"lala\" already exists"
+      assert msg == "ERROR 42P06 (duplicate_schema) schema \"lala\" already exists"
     end
   end
 

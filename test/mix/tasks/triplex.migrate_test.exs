@@ -17,7 +17,6 @@ defmodule Mix.Tasks.Triplex.MigrateTest do
       on_exit drop_tenants
       :ok
     else
-      Ecto.Adapters.SQL.Sandbox.mode(@repo, :manual)
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(@repo)
     end
   end

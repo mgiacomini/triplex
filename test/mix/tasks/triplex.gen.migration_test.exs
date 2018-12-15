@@ -32,10 +32,13 @@ defmodule Mix.Tasks.Triplex.Gen.MigrationTest do
     run ["-r", to_string(Repo), "test"]
     assert [name] = File.ls!(@migrations_path)
     assert String.match? name, ~r/^\d{14}_test\.exs$/
+
     assert_file Path.join(@migrations_path, name), fn file ->
-      assert file =~ """
-      defmodule Mix.Tasks.Triplex.Gen.MigrationTest.Repo.Migrations.Test do
-      """
+      assert file =~
+        """
+        defmodule Mix.Tasks.Triplex.Gen.MigrationTest.Repo.Migrations.Test do
+        """
+
       assert file =~ "use Ecto.Migration"
       assert file =~ "def change do"
     end

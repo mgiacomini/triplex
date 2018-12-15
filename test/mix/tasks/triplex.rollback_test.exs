@@ -7,15 +7,16 @@ defmodule Mix.Tasks.Triplex.RollbackTest do
   setup do
     if @repo.__adapter__ == Ecto.Adapters.MySQL do
       Ecto.Adapters.SQL.Sandbox.mode(@repo, :auto)
+
       drop_tenants = fn ->
         Triplex.drop("rollback_test1", @repo)
         Triplex.drop("rollback_test2", @repo)
       end
+
       drop_tenants.()
       on_exit drop_tenants
       :ok
     else
-      Ecto.Adapters.SQL.Sandbox.mode(@repo, :manual)
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(@repo)
     end
   end
