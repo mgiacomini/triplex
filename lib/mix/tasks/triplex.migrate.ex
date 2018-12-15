@@ -2,6 +2,7 @@ defmodule Mix.Tasks.Triplex.Migrate do
   use Mix.Task
   require Logger
   import Mix.Ecto
+  import Mix.EctoSQL
   import Mix.Triplex
 
   alias Ecto.Adapters.SQL.Sandbox
@@ -88,9 +89,11 @@ defmodule Mix.Tasks.Triplex.Migrate do
       end
 
       Code.compiler_options(ignore_module_conflict: true)
+
       migrated = Enum.reduce Triplex.all(repo), [], fn(tenant, acc) ->
         migrate_tenant(opts, migrator, repo, tenant, acc)
       end
+
       Code.compiler_options(ignore_module_conflict: false)
 
       pid && repo.stop(pid)

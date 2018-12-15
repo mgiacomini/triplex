@@ -7,20 +7,20 @@ defmodule Mix.Tasks.Triplex.MigrateTest do
   setup do
     if @repo.__adapter__ == Ecto.Adapters.MySQL do
       Ecto.Adapters.SQL.Sandbox.mode(@repo, :auto)
-      drop_tenants = fn -> 
+
+      drop_tenants = fn ->
         Triplex.drop("migrate_test1", @repo)
         Triplex.drop("migrate_test2", @repo)
       end
+
       drop_tenants.()
       on_exit drop_tenants
       :ok
-    else 
+    else
       Ecto.Adapters.SQL.Sandbox.mode(@repo, :manual)
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(@repo)
     end
   end
-
-
 
   test "runs migration for each tenant, with the correct prefix" do
     Triplex.create_schema("migrate_test1", @repo)
@@ -33,6 +33,7 @@ defmodule Mix.Tasks.Triplex.MigrateTest do
 
       send self(), {:ok, opts[:prefix]}
     end, true)
+
     assert_received {:ok, "migrate_test1"}
     assert_received {:ok, "migrate_test2"}
   end

@@ -8,13 +8,11 @@ defmodule Mix.Tasks.Triplex.MigrationsTest do
   setup do
     if @repo.__adapter__ == Ecto.Adapters.MySQL do
       Ecto.Adapters.SQL.Sandbox.mode(@repo, :auto)
-      drop_tenants = fn -> 
-        Triplex.drop("migrations_test", @repo)
-      end
+      drop_tenants = fn -> Triplex.drop("migrations_test", @repo) end
       drop_tenants.()
       on_exit drop_tenants
       :ok
-    else 
+    else
       Ecto.Adapters.SQL.Sandbox.mode(@repo, :manual)
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(@repo)
     end

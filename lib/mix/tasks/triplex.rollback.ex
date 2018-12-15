@@ -2,6 +2,7 @@ defmodule Mix.Tasks.Triplex.Rollback do
   use Mix.Task
   require Logger
   import Mix.Ecto
+  import Mix.EctoSQL
   import Mix.Triplex
 
   alias Ecto.Adapters.SQL.Sandbox

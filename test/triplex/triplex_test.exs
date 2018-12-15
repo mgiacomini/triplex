@@ -16,12 +16,14 @@ defmodule TriplexTest do
       # Therefore, when dealing with DDL operations in MySQL in a test, we have
       # to "clean up" ourselves
       Ecto.Adapters.SQL.Sandbox.mode(@repo, :auto)
+
       drop_tenants = fn ->
         Triplex.drop("lala", @repo)
         Triplex.drop("lili", @repo)
         Triplex.drop("lolo", @repo)
         Triplex.drop(@tenant, @repo)
       end
+
       drop_tenants.()
       on_exit drop_tenants
       :ok
@@ -39,12 +41,11 @@ defmodule TriplexTest do
   test "create/2 must return a error if the tenant already exists" do
     Triplex.create("lala", @repo)
     assert {:error, msg} = Triplex.create("lala", @repo)
+
     if @repo.__adapter__ == Ecto.Adapters.MySQL do
-      assert msg =~
-        "Can't create database 'lala'; database exists"
+      assert msg =~ "Can't create database 'lala'; database exists"
     else
-      assert msg ==
-        "ERROR 42P06 (duplicate_schema): schema \"lala\" already exists"
+      assert msg == "ERROR 42P06 (duplicate_schema): schema \"lala\" already exists"
     end
   end
 
@@ -88,6 +89,7 @@ defmodule TriplexTest do
   test "exists?/2 for a reserved tenants returns false" do
     tenants = Enum.filter Triplex.reserved_tenants, &(!Regex.regex?(&1))
     tenants = ["pg_lol", "pg_cow" | tenants]
+
     for tenant <- tenants do
       refute Triplex.exists?(tenant, @repo)
     end
@@ -141,13 +143,9 @@ defmodule TriplexTest do
 
   defp assert_notes_table_is_dropped do
     if @repo.__adapter__ == Ecto.Adapters.MySQL do
-      assert_raise Mariaex.Error, fn ->
-        find_tenant_notes()
-      end
+      assert_raise Mariaex.Error, fn -> find_tenant_notes() end
     else
-      assert_raise Postgrex.Error, fn ->
-        find_tenant_notes()
-      end
+      assert_raise Postgrex.Error, fn -> find_tenant_notes() end
     end
   end
 
@@ -164,10 +162,10 @@ defmodule TriplexTest do
   end
 
   defp find_tenant_notes do
-    query = Note
-            |> Ecto.Queryable.to_query
-            |> Map.put(:prefix, @tenant)
-    @repo.all(query)
+    Note
+    |> Ecto.Queryable.to_query()
+    |> Map.put(:prefix, @tenant)
+    |> @repo.all()
   end
 
   defp force_migration_failure(migration_function) do
@@ -179,6 +177,7 @@ defmodule TriplexTest do
       DELETE FROM "#{@tenant}"."schema_migrations"
       """
     end
+
     {:ok, _ } = Ecto.Adapters.SQL.query(@repo, sql, [])
 
     if @repo.__adapter__ == Ecto.Adapters.MySQL do 

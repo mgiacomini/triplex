@@ -15,22 +15,17 @@ defmodule Mix.Triplex do
   """
 
   alias Mix.Project
-
-  import Mix.Ecto, only: [source_repo_priv: 1]
+  alias Mix.EctoSQL
   import Triplex, only: [config: 0]
 
   @doc """
   Returns the path for your tenant migrations.
   """
   def migrations_path(repo \\ config().repo)
-  def migrations_path(nil) do
-    ""
-  end
-  def migrations_path(repo) do
-    repo
-    |> source_repo_priv()
-    |> Path.join("tenant_migrations")
-  end
+  def migrations_path(nil),
+    do: ""
+  def migrations_path(repo),
+    do: repo |> EctoSQL.source_repo_priv() |> Path.join("tenant_migrations")
 
   @doc """
   Ensures the migrations path exists for the given `repo`.

@@ -260,11 +260,8 @@ defmodule Triplex do
   def migrate(tenant, repo \\ config().repo) do
     Code.compiler_options(ignore_module_conflict: true)
     try do
-      migrated_versions = Migrator.run(repo,
-                                       migrations_path(repo),
-                                       :up,
-                                       all: true,
-                                       prefix: to_prefix(tenant))
+      migrated_versions =
+        Migrator.run(repo, migrations_path(repo), :up, all: true, prefix: to_prefix(tenant))
 
       {:ok, migrated_versions}
     rescue
