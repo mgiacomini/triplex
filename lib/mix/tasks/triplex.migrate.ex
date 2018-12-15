@@ -63,8 +63,9 @@ defmodule Mix.Tasks.Triplex.Migrate do
 
     {opts, _, _} = OptionParser.parse args,
       switches: [all: :boolean, step: :integer, to: :integer, quiet: :boolean,
-                 pool_size: :integer],
-      aliases: [n: :step, v: :to]
+                 prefix: :string, pool_size: :integer, log_sql: :boolean,
+                 strict_version_order: :boolean],
+      aliases: [n: :step]
 
     opts =
       if opts[:to] || opts[:step] || opts[:all],
@@ -73,46 +74,39 @@ defmodule Mix.Tasks.Triplex.Migrate do
 
     opts =
       if opts[:quiet],
-        do: Keyword.put(opts, :log, false),
+        do: Keyword.merge(opts, [log: false, log_sql: false]),
         else: opts
 
-    Enum.each repos, fn repo ->
+    Enum.each(repos, fn repo ->
       ensure_repo(repo, args)
       ensure_tenant_migrations_path(repo)
       {:ok, pid, apps} = ensure_started(repo, opts)
 
-      # If the pool is Ecto.Adapters.SQL.Sandbox,
-      # let's make sure we get a connection outside of a sandbox.
-      if sandbox?(repo) and !testing? do
-        Sandbox.checkin(repo)
-        Sandbox.checkout(repo, sandbox: false, ownership_timeout: :infinity)
-      end
-
-      Code.compiler_options(ignore_module_conflict: true)
-
-      migrated = Enum.reduce Triplex.all(repo), [], fn(tenant, acc) ->
+      migrated = Enum.reduce(Triplex.all(repo), [], fn(tenant, acc) ->
         migrate_tenant(opts, migrator, repo, tenant, acc)
-      end
+      end)
 
-      Code.compiler_options(ignore_module_conflict: false)
-
-      pid && repo.stop(pid)
-      restart_apps_if_migrated(apps, List.flatten(migrated))
-    end
+      pid && repo.stop()
+      restart_apps_if_migrated(apps, migrated)
+    end)
   end
 
   defp migrate_tenant(opts, migrator, repo, tenant, acc) do
     Logger.log :info, "===> Running migrations to \"#{tenant}\" tenant"
     opts = Keyword.put(opts, :prefix, tenant)
+    path = Mix.Triplex.migrations_path(repo)
+    pool = repo.config[:pool]
 
-    [try do
-       migrator.(repo, Mix.Triplex.migrations_path(repo), :up, opts)
-    after
-      sandbox?(repo) && Sandbox.checkin(repo)
-    end | acc]
-  end
+    if function_exported?(pool, :unboxed_run, 2) do
+      # Runs a function outside of the sandbox
+      {:ok, tenant_name} = pool.unboxed_run(repo, fn ->
+        migrator.(repo, path, :up, opts)
+      end)
 
-  defp sandbox?(repo) do
-    repo.config[:pool] == Sandbox
+      [tenant_name | acc]
+    else
+      tenant_name = migrator.(repo, path, :up, opts)
+      [tenant_name | acc]
+    end
   end
 end
